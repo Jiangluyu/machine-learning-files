@@ -62,24 +62,56 @@ Theta2_grad = zeros(size(Theta2));
 %               and Theta2_grad from Part 2.
 %
 
+% forward propagation
+X = [ones(m,1) X];
+a1 = X;
+a2 = sigmoid(Theta1 * a1');
+a2 = [ones(m,1) a2'];
+hThetaX = sigmoid(Theta2 * a2');
 
+% recode labels (trick on ex4.pdf page 5)
+yVec = zeros(num_labels, m);
+for i = 1:m
+    yVec(y(i),i) = 1;
+end
 
+% form of J(theta)
+J = - 1 / m * sum(sum(yVec .* log(hThetaX) + (1-yVec) .* log(1-hThetaX)));
 
+% regulator
+t1 = Theta1(:,2:end);
+t2 = Theta2(:,2:end);
+reg = lambda / (2*m) * (sum(sum(t1 .^ 2)) + sum(sum(t2 .^ 2)));
 
+% cost function + regulator
+J = J + reg;
 
-
-
-
-
-
-
-
-
-
-
-
-
-
+% back propagation
+for t = 1:m
+    % forward propagation
+    a1 = X(t,:);
+    z2 = Theta1 * a1';
+    a2 = sigmoid(z2);
+    a2 = [ones(size(a2,2),1); a2];
+    z3 = Theta2 * a2;
+    a3 = sigmoid(z3);
+    
+    % back propagation
+    z2 = [ones(size(z2,2),1); z2];
+    delta3 = a3 - yVec(:,t);
+    delta2 = Theta2' * delta3 .* sigmoidGradient(z2);
+    delta2 = delta2(2:end);
+    
+    % accumulate
+    Theta2_grad = Theta2_grad + delta3 * a2';
+    Theta1_grad = Theta1_grad + delta2 * a1;
+end
+    
+% regularization
+Theta1_grad = Theta1_grad ./ m;
+Theta1_grad(:,2:end) = Theta1_grad(:,2:end) + (lambda / m) * Theta1(:,2:end);
+Theta2_grad = Theta2_grad ./ m;
+Theta2_grad(:,2:end) = Theta2_grad(:,2:end) + (lambda / m) * Theta2(:,2:end);
 % -------------------------------------------------------------
 
 % =========================================================================
