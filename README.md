@@ -5,6 +5,7 @@
       - logistic regression realization of Matlab version  
       - regularized logistic regression OneVsAll of Matlab version  
       - neural network learning of Matlab version  
+      - SVM of Matlab verson  
       
  also, it includes:  
       - lecture slides
